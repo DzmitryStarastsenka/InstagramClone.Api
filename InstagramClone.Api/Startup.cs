@@ -1,3 +1,4 @@
+using InstagramClone.Api.Extensions;
 using InstagramClone.Domain.Jwt;
 using InstagramClone.Domain.Jwt.Impl;
 using InstagramClone.Domain.Jwt.Interfaces;
@@ -97,6 +98,8 @@ namespace InstagramClone.Api
 
             app.UseAuthentication();
             app.UseAuthorization();
+
+            app.ConfigureCustomExceptionMiddleware();
 
             app.UseEndpoints(endpoints =>
             {
