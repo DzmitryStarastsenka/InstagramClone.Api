@@ -1,17 +1,35 @@
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using InstagramClone.Api.Extensions;
+using InstagramClone.Application.Models.Authentificate;
+using InstagramClone.Application.Services.User;
+using InstagramClone.Application.Services.User.Interfaces;
+using InstagramClone.Application.Services.User.Providers;
+using InstagramClone.Application.Sieve;
+using InstagramClone.Domain.DAL;
+using InstagramClone.Domain.DAL.Models.Post;
+using InstagramClone.Domain.DAL.Models.User;
 using InstagramClone.Domain.Jwt;
 using InstagramClone.Domain.Jwt.Impl;
 using InstagramClone.Domain.Jwt.Interfaces;
+using InstagramClone.Domain.UserProviders;
+using InstagramClone.Infrastructure.DAL;
 using InstagramClone.Infrastructure.DAL.Context;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
+using Sieve.Services;
+using System;
 using System.Collections.Generic;
+using System.Globalization;
 
 namespace InstagramClone.Api
 {
@@ -31,7 +49,19 @@ namespace InstagramClone.Api
                 options.UseSqlServer(
                     Configuration.GetConnectionString("DefaultConnection")));
 
-            services.AddControllers();
+            services.AddMvcCore().AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<ValidateTokenRequestValidator>());
+            ValidatorOptions.Global.LanguageManager.Culture = new CultureInfo("en-Us");
+
+            services.AddControllers()
+                .AddNewtonsoftJson(options =>
+                {
+                    options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+                    options.SerializerSettings.DateFormatString = "yyyy-MM-ddTHH:mm:ssZ";
+                    options.SerializerSettings.DateFormatHandling = DateFormatHandling.IsoDateFormat;
+                    options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+                });
+
+            services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
             services.AddAuthentication(options =>
             {
@@ -74,6 +104,17 @@ namespace InstagramClone.Api
             });
 
             services.AddScoped<IUserJwtTokenGenerator, AuthJwtTokenGenerator>();
+
+            services.AddScoped<ISieveCustomFilterMethods, SieveCustomFilters>();
+            services.AddScoped<ISieveProcessor, ApplicationSieveProcessor>();
+
+            services.AddScoped<IRepository<UserProfile>, EntityRepository<UserProfile>>();
+            services.AddScoped<IUserService, UserService>();
+
+            services.AddScoped<IRepository<UserPost>, EntityRepository<UserPost>>();
+
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            services.AddTransient<IAuthenticatedCurrentUserInfoProvider, AuthenticatedCurrentUserInfoProvider>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
