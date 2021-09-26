@@ -2,6 +2,8 @@ using FluentValidation;
 using FluentValidation.AspNetCore;
 using InstagramClone.Api.Extensions;
 using InstagramClone.Application.Models.Authentificate;
+using InstagramClone.Application.Services.Post;
+using InstagramClone.Application.Services.Post.Interfaces;
 using InstagramClone.Application.Services.User;
 using InstagramClone.Application.Services.User.Interfaces;
 using InstagramClone.Application.Services.User.Providers;
@@ -112,6 +114,9 @@ namespace InstagramClone.Api
             services.AddScoped<IUserService, UserService>();
 
             services.AddScoped<IRepository<UserPost>, EntityRepository<UserPost>>();
+            services.AddScoped<IRepository<PostComment>, EntityRepository<PostComment>>();
+            services.AddScoped<IRepository<PostLike>, EntityRepository<PostLike>>();
+            services.AddScoped<IPostService, PostService>();
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddTransient<IAuthenticatedCurrentUserInfoProvider, AuthenticatedCurrentUserInfoProvider>();
