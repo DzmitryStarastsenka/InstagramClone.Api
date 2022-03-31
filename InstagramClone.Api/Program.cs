@@ -71,6 +71,11 @@ builder.Services.AddAuthentication(options =>
 })
 .AddJwtBearer(options => JwtHandler.ConfigureJwtBearerOptions(options, configuration.GetSection("JwtToken")));
 
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("AdminOnly", policy => policy.AddRequirements(new AdminRequirement()));
+});
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
@@ -124,8 +129,11 @@ builder.Services.AddScoped<IRepository<PostLike>, EntityRepository<PostLike>>();
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 builder.Services.AddTransient<IAuthenticatedCurrentUserInfoProvider, AuthenticatedCurrentUserInfoProvider>();
 
+builder.Services.AddScoped<UserAccessToUpdatePostFilter>();
+builder.Services.AddScoped<UserAccessToUpdateCommentFilter>();
 
 var app = builder.Build();
+app.MigrateDatabase();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

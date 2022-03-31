@@ -6,12 +6,23 @@ namespace InstagramClone.Domain.Exceptions
 {
     public class ValidationApiException : ApiException
     {
-        public IEnumerable<ValidationResult> ValidationResults { get; protected set; }
+        public IEnumerable<ValidatedField> ValidatedFields { get; protected set; }
 
-        public ValidationApiException(IEnumerable<ValidationResult> validationResults, string message = "Bad Request") : base(message)
+        public ValidationApiException(IEnumerable<ValidatedField> validatedFields, string message = "Bad Request") : base(message)
         {
             StatusCode = HttpStatusCode.BadRequest;
-            ValidationResults = validationResults;
+            ValidatedFields = validatedFields;
+        }
+    }
+
+    public class ValidatedField : ValidationResult
+    {
+        public ValidationErrorCode ErrorCode { get; }
+
+        public ValidatedField(string fieldName, ValidationErrorCode errorCode = ValidationErrorCode.Invalid, string message = "Invalid field")
+                        : base(message, new[] { fieldName })
+        {
+            ErrorCode = errorCode;
         }
     }
 }

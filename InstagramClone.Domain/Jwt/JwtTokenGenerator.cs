@@ -38,13 +38,13 @@ namespace InstagramClone.Domain.Jwt
             var now = DateTime.UtcNow;
 
             return new JwtSecurityToken(
-                GetConfigValue("issuer"),
-                GetConfigValue("audience"),
+                issuer: GetConfigValue("issuer"),
+                audience: GetConfigValue("audience"),
                 notBefore: now,
                 claims: claims,
                 expires: GetExpiresIn(now, expiresInName),
                 signingCredentials:
-                new SigningCredentials(GetSymmetricSecurityKey(), SecurityAlgorithms.HmacSha256Signature));
+                    new SigningCredentials(GetSymmetricSecurityKey(), SecurityAlgorithms.HmacSha256Signature));
         }
 
         public bool ValidateToken(string token)
@@ -59,6 +59,52 @@ namespace InstagramClone.Domain.Jwt
                     ValidIssuer = GetConfigValue("issuer"),
                     ValidateLifetime = true,
                     ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = GetSymmetricSecurityKey()
+                },
+                    out _);
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        public bool ValidateJwtTokenWithoutLifetime(string token)
+        {
+            try
+            {
+                new JwtSecurityTokenHandler().ValidateToken(token, new TokenValidationParameters
+                {
+                    ValidateLifetime = false,
+                    ValidateAudience = true,
+                    ValidAudience = GetConfigValue("audience"),
+                    ValidateIssuer = true,
+                    ValidIssuer = GetConfigValue("issuer"),
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = GetSymmetricSecurityKey()
+                },
+                   out _);
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        public bool ValidateLifeTime(string token)
+        {
+            try
+            {
+                new JwtSecurityTokenHandler().ValidateToken(token, new TokenValidationParameters
+                {
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = false,
+                    ValidateAudience = false,
+                    ValidateIssuer = false,
                     IssuerSigningKey = GetSymmetricSecurityKey()
                 },
                     out _);
@@ -88,7 +134,7 @@ namespace InstagramClone.Domain.Jwt
 
         private SymmetricSecurityKey GetSymmetricSecurityKey()
         {
-            return new SymmetricSecurityKey(Encoding.ASCII.GetBytes(GetConfigValue("privateKey")));
+            return new SymmetricSecurityKey(Encoding.UTF8.GetBytes(GetConfigValue("privateKey")));
         }
     }
 }

@@ -8,7 +8,7 @@ namespace InstagramClone.Domain.DAL.Models.Post
     {
         public int Id { get; set; }
         public string Description { get; set; }
-        public DateTime PostCreatedAt { get; set; }
+        public DateTime PostCreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime? PostEditedAt { get; set; }
 
         public byte[] Photo { get; set; }

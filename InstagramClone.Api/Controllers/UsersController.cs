@@ -1,51 +1,49 @@
-﻿using AutoMapper;
-using InstagramClone.Application.Models.User;
-using InstagramClone.Application.Services.User.Interfaces;
+﻿using InstagramClone.Application.Models.User;
+using InstagramClone.Application.Queries.User;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Sieve.Models;
+using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace InstagramClone.Api.Controllers
 {
     [Authorize]
     [ApiController]
-    [Route("api/[controller]")]
-    public class UsersController : Controller
+    [Route("api/users")]
+    public class UsersController : ControllerBase
     {
-        private readonly IUserService _userService;
-        private readonly IMapper _mapper;
+        private readonly IMediator _mediator;
 
-        public UsersController(
-            IUserService userService,
-            IMapper mapper)
+        public UsersController(IMediator mediator)
         {
-            _userService = userService;
-            _mapper = mapper;
+            _mediator = mediator;
         }
 
         [HttpGet]
-        [Route("userProfiles")]
-        public async Task<IActionResult> GetUserProfiles([FromQuery] SieveModel request)
+        [Route("all")]
+        public async Task<ActionResult<List<UserProfileDto>>> GetUserProfiles([FromQuery] SieveModel request, CancellationToken token)
         {
-            var users = await _userService.GetUserProfiles(request);
-            return Ok(users);
+            return await _mediator.Send(new GetUserProfilesQuery(request), token);
         }
 
         [HttpGet("{id}")]
-        public IActionResult GetById([FromRoute] int id)
+        public async Task<ActionResult<UserProfileDto>> GetById([FromRoute] int id, CancellationToken token)
         {
-            return Ok(_userService.GetById(id));
+            return await _mediator.Send(new GetUserInfoQuery(id), token);
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateUserRequest request)
-        {
-            var user = _mapper.Map<UserProfileDTO>(request);
-            user.Id = id;
+        //[Authorize(Policy = "Admin")]
+        //[HttpPut("{id}")]
+        //public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateUserRequest request)
+        //{
+        //    var user = _mapper.Map<UserProfileDto>(request);
+        //    user.Id = id;
 
-            await _userService.UpdateAsync(user, request.Password);
-            return Ok();
-        }
+        //    await _userService.UpdateAsync(user, request.Password);
+        //    return Ok();
+        //}
     }
 }

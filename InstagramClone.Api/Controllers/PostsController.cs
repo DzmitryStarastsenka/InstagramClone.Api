@@ -1,113 +1,80 @@
-﻿using InstagramClone.Application.Models.Post;
-using InstagramClone.Application.Services.Post.Interfaces;
+﻿using InstagramClone.Api.Filters;
+using InstagramClone.Application.Models.Post;
+using InstagramClone.Application.Models.Post.Requests;
+using InstagramClone.Application.Queries.User;
+using InstagramClone.Domain.Constants.Posts;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Sieve.Models;
+using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace InstagramClone.Api.Controllers
 {
     [Authorize]
     [ApiController]
-    [Route("api/[controller]")]
-    public class PostsController : Controller
+    [Route("api/posts")]
+    public class PostsController : ControllerBase
     {
-        private readonly IPostService _postService;
+        private readonly IMediator _mediator;
 
-        public PostsController(IPostService postService)
+        public PostsController(IMediator mediator)
         {
-            _postService = postService;
+            _mediator = mediator;
         }
 
         [HttpGet]
-        [Route("posts")]
-        public async Task<IActionResult> GetPosts([FromQuery] SieveModel request)
+        [Route("all")]
+        public async Task<ActionResult<List<PostListItemDto>>> GetPosts([FromQuery] SieveModel request, CancellationToken token)
         {
-            var posts = await _postService.GetPostsAsync(request);
-            return Ok(posts);
+            return await _mediator.Send(new GetPostsQuery(request), token);
         }
 
-        [HttpGet]
-        [Route("comments")]
-        public async Task<IActionResult> GetComments([FromQuery] SieveModel request)
+        [HttpPost]
+        public async Task<IActionResult> CreateUserPost([FromBody] CreatePostRequest request, CancellationToken token)
         {
-            var comments = await _postService.GetCommentsAsync(request);
-            return Ok(comments);
-        }
-
-        [HttpGet]
-        [Route("likesCount")]
-        public async Task<IActionResult> GetLikesCount([FromQuery] SieveModel request)
-        {
-            var comments = await _postService.GetLikesCountAsync(request);
-            return Ok(comments);
-        }
-
-        [HttpGet("{id}")]
-        public IActionResult GetPostById([FromRoute] int id)
-        {
-            return Ok(_postService.GetPostById(id));
-        }
-
-        [HttpGet("comment/{id}")]
-        public IActionResult GetCommentById([FromRoute] int id)
-        {
-            return Ok(_postService.GetCommentById(id));
-        }
-
-        [HttpGet("{id}/liked")]
-        public async Task<IActionResult> IsPostLiked([FromRoute] int id)
-        {
-            return Ok(await _postService.IsPostLikedAsync(id));
-        }
-
-        [HttpPost("createPost")]
-        public async Task<IActionResult> CreateUserPost([FromBody] CreatePostRequest request)
-        {
-            await _postService.CreateUserPostAsync(request);
-            return Ok();
-        }
-
-        [HttpPost("createComment")]
-        public async Task<IActionResult> CreateComment([FromBody] CreateCommentRequest request)
-        {
-            await _postService.CreateCommentAsync(request);
-            return Ok();
-        }
-
-
-        [HttpPut("{id}/like")]
-        public async Task<IActionResult> LikePost([FromRoute] int id)
-        {
-            await _postService.LikePostAsync(id);
-            return Ok();
+            var post = await _mediator.Send(new CreatePostCommand(request), token);
+            return StatusCode(StatusCodes.Status201Created, post);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdatePost([FromRoute] int id, [FromBody] UpdatePostRequest request)
+        [ServiceFilter(typeof(UserAccessToUpdatePostFilter))]
+        public async Task<IActionResult> UpdatePost([FromRoute] int id, [FromBody] UpdatePostRequest request, CancellationToken token)
         {
-            await _postService.UpdateUserPostAsync(request);
+            await _mediator.Send(new UpdatePostCommand(id, request), token);
+            return NoContent();
+        }
+
+        [HttpGet]
+        [Route("{id}/photo")]
+        public async Task<FileContentResult> GetPostPhoto([FromRoute] int id, CancellationToken token)
+        {
+            var fileBytes = await _mediator.Send(new GetPostPhotoQuery(id), token);
+            return File(fileBytes, PostsConstants.CorrectFileType, $"post{id}Photo.png");
+        }
+
+        [HttpPut("{id}/photo")]
+        [ServiceFilter(typeof(UserAccessToUpdatePostFilter))]
+        public async Task<IActionResult> UpdatePostPhoto([FromRoute] int id, [FromForm] IFormFile photo, CancellationToken token)
+        {
+            await _mediator.Send(new UpdatePostPhotoCommand(id, photo), token);
+            return NoContent();
+        }
+
+        [HttpPut("{id}/like")]
+        public async Task<IActionResult> LikePost([FromRoute] int id, CancellationToken token)
+        {
+            await _mediator.Send(new LikePostCommand(id), token);
             return Ok();
         }
 
-        [HttpPut("{id}/updatePhoto")]
-        public async Task<IActionResult> UpdatePostPhoto([FromRoute] int id, [FromBody] UpdatePostPhotoRequest request)
+        [HttpPut("{id}/unlike")]
+        public async Task<IActionResult> UnlikePost([FromRoute] int id, CancellationToken token)
         {
-            await _postService.UpdatePostPhotoAsync(request);
-            return Ok();
-        }
-
-        [HttpPut("comment/{id}")]
-        public async Task<IActionResult> UpdateComment([FromRoute] int id, [FromBody] EditCommentRequest request)
-        {
-            await _postService.EditCommentAsync(request);
-            return Ok();
-        }
-
-        [HttpPut("post/{id}/unlike")]
-        public async Task<IActionResult> UnlikePost([FromRoute] int id)
-        {
-            await _postService.UnlikePostAsync(id);
+            await _mediator.Send(new UnlikePostCommand(id), token);
             return Ok();
         }
     }

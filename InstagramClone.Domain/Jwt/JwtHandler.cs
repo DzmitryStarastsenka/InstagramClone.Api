@@ -6,14 +6,14 @@ using System.Text;
 
 namespace InstagramClone.Domain.Jwt
 {
-    public static class JWTHandler
+    public static class JwtHandler
     {
         public static void ConfigureJwtBearerOptions(JwtBearerOptions options, IConfigurationSection configurationSection)
         {
-            var secretKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(configurationSection.GetValue<string>("privateKey")));
+            var secretKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configurationSection.GetValue<string>("privateKey")));
 
-            options.RequireHttpsMetadata = false;
             options.SaveToken = true;
+            options.RequireHttpsMetadata = false;
             options.TokenValidationParameters = new TokenValidationParameters
             {
                 ValidateIssuerSigningKey = true,

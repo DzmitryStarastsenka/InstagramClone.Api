@@ -1,6 +1,7 @@
 ﻿using InstagramClone.Domain.DAL;
 using InstagramClone.Infrastructure.DAL.Context;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Sieve.Services;
 using System.Threading;
 using System.Threading.Tasks;
@@ -28,11 +29,23 @@ namespace InstagramClone.Infrastructure.DAL
             return Set.Find(keys);
         }
 
+        public ValueTask<TEntity> FindAsync(CancellationToken token, params object[] keys)
+        {
+            return Set.FindAsync(keys, token);
+        }
+
         public void Insert(TEntity entity)
         {
             var entry = _context.Entry(entity);
             if (entry.State == EntityState.Detached)
                 Set.Add(entity);
+        }
+
+        public async Task InsertAsync(TEntity entity, CancellationToken token)
+        {
+            var entry = GetEntityEntry(entity);
+            if (entry.State == EntityState.Detached)
+                await Set.AddAsync(entity, token);
         }
 
         public void Delete(TEntity entity)
@@ -54,6 +67,11 @@ namespace InstagramClone.Infrastructure.DAL
         public Task<int> SaveChangesAsync(CancellationToken token)
         {
             return _context.SaveChangesAsync(token);
+        }
+
+        public EntityEntry<TEntity> GetEntityEntry(TEntity entity)
+        {
+            return _context.Entry(entity);
         }
     }
 }

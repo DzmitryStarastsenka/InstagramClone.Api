@@ -1,70 +1,46 @@
-﻿using AutoMapper;
+﻿using MediatR;
 using InstagramClone.Application.Models.Authentificate;
 using InstagramClone.Application.Models.User;
-using InstagramClone.Application.Services.User.Interfaces;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System;
 using System.Threading.Tasks;
+using System.Threading;
+using InstagramClone.Application.Commands.User;
+using InstagramClone.Api.Filters;
+using Microsoft.AspNetCore.Authorization;
 
 namespace InstagramClone.Api.Controllers
 {
-    [Authorize]
     [ApiController]
-    [Route("api/[controller]")]
-    public class AuthentificationController : Controller
+    [Route("api/auth")]
+    public class AuthentificationController : ControllerBase
     {
-        private readonly IUserService _userService;
-        private readonly IMapper _mapper;
+        private readonly IMediator _mediator;
 
-        public AuthentificationController(
-            IUserService userService,
-            IMapper mapper)
+        public AuthentificationController(IMediator mediator)
         {
-            _userService = userService;
-            _mapper = mapper;
+            _mediator = mediator;
         }
 
-        [AllowAnonymous]
+        [AnonymousOnly]
         [HttpPost("login")]
-        public async Task<ActionResult<LoginResponse>> Login([FromBody] LoginRequest request)
+        public async Task<ActionResult<LoginResponse>> Login([FromBody] LoginRequest request, CancellationToken token)
         {
-            var user = await _userService.AuthenticateAsync(request);
-
-            if (user == null)
-                return BadRequest();
-
-            var token = _userService.GenerateToken(user);
-
-            return new LoginResponse
-            {
-                UserProfile = user,
-                Token = token
-            };
+            return await _mediator.Send(new AuthenticateUserCommand(request), token);
         }
 
-        [AllowAnonymous]
+        [AnonymousOnly]
         [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] RegisterRequest request)
+        public async Task<ActionResult<UserProfileDto>> Register([FromBody] RegisterRequest request, CancellationToken token)
         {
-            var userDTO = _mapper.Map<UserProfileDTO>(request);
-            await _userService.CreateAsync(userDTO, request.Password);
-            return Ok();
+            return await _mediator.Send(new RegisterUserCommand(request), token);
         }
 
         [AllowAnonymous]
         [HttpPost("validateToken")]
-        public IActionResult ValidateToken([FromBody] ValidateTokenRequest request)
+        public async Task<IActionResult> ValidateTokenAsync([FromBody] string token, CancellationToken cancellationToken)
         {
-            var validateToken = _userService.ValidateToken(request.Token);
-            if (validateToken)
-            {
-                return Ok();
-            }
-            else
-            {
-                return BadRequest();
-            }
+            await _mediator.Send(new ValidateAuthJwtTokenCommand(token), cancellationToken);
+            return Ok();
         }
     }
 }

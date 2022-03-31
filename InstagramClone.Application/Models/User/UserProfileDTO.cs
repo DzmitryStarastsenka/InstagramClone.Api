@@ -1,6 +1,6 @@
 ﻿namespace InstagramClone.Application.Models.User
 {
-    public class UserProfileDTO
+    public class UserProfileDto
     {
         public int Id { get; set; }
         public string FirstName { get; set; }
