@@ -1,7 +1,7 @@
 #See https://aka.ms/containerfastmode to understand how Visual Studio uses this Dockerfile to build your images for faster debugging.
 
 FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS base
-WORKDIR /app
+WORKDIR /app/Api
 EXPOSE 80
 EXPOSE 443
 
@@ -14,12 +14,12 @@ COPY ["InstagramClone.Application/InstagramClone.Application.csproj", "Instagram
 RUN dotnet restore "InstagramClone.Api/InstagramClone.Api.csproj"
 COPY . .
 WORKDIR "/src/InstagramClone.Api"
-RUN dotnet build "InstagramClone.Api.csproj" -c Release -o /app/build
+RUN dotnet build "InstagramClone.Api.csproj" -c Release -o /app/build/Api
 
 FROM build AS publish
-RUN dotnet publish "InstagramClone.Api.csproj" -c Release -o /app/publish
+RUN dotnet publish "InstagramClone.Api.csproj" -c Release -o /app/publish/Api
 
 FROM base AS final
-WORKDIR /app
-COPY --from=publish /app/publish .
+WORKDIR /app/Api
+COPY --from=publish /app/publish/Api .
 ENTRYPOINT ["dotnet", "InstagramClone.Api.dll"]

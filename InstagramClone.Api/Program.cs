@@ -132,6 +132,9 @@ builder.Services.AddTransient<IAuthenticatedCurrentUserInfoProvider, Authenticat
 builder.Services.AddScoped<UserAccessToUpdatePostFilter>();
 builder.Services.AddScoped<UserAccessToUpdateCommentFilter>();
 
+builder.Services.AddScoped<RabbitMQHelper>();
+builder.Services.AddTransient<IRabbitMQEmailSenderService, RabbitMQEmailSenderService>();
+
 var app = builder.Build();
 app.MigrateDatabase();
 

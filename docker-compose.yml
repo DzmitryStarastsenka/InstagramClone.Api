@@ -1,6 +1,16 @@
 version: '3.4'
 
 services:
+  instagramclone.emailsender:
+    image: ${DOCKER_REGISTRY-}instagramcloneemailsender
+    build:
+      context: .
+      dockerfile: InstagramClone.EmailSender/Dockerfile
+    depends_on:
+      - instagramclone.api
+      - db
+      - rabbit
+
   instagramclone.api:
     image: ${DOCKER_REGISTRY-}instagramcloneapi
     build:
@@ -8,8 +18,20 @@ services:
       dockerfile: InstagramClone.Api/Dockerfile
     depends_on:
       - db
+      - rabbit
+
+  rabbit:
+    image: "rabbitmq:3-management"
+    hostname: "rabbitmq"
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    expose:
+      - "5672"
+      - "15672"
+
   db:
-    image: "mcr.microsoft.com/mssql/server"
+    image: "mcr.microsoft.com/mssql/server:2019-latest"
     environment:
-        SA_PASSWORD: "Test_Password123?!"
-        ACCEPT_EULA: "Y"
+      SA_PASSWORD: "Test_Password123?!"
+      ACCEPT_EULA: "Y"
