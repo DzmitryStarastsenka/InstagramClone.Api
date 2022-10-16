@@ -17,9 +17,9 @@ namespace InstagramClone.EmailSender.Helpers
             _logger = logger;
         }
 
-        public void SendEmailMessages(EmailModel emailModel)
+        public void SendEmailMessage(EmailModel emailModel)
         {
-            var emailConfig = "Emails:";
+            var emailConfig = "EmailSettings:";
 
             var fromAddress = new MailAddress(
                 _configuration[emailConfig + "userName"],
@@ -29,11 +29,11 @@ namespace InstagramClone.EmailSender.Helpers
 
             var fromPassword = _configuration[emailConfig + "password"];
 
-            const string subject = " New post has been published in your subscriptions!";
+            const string subject = "New post has been published in your subscriptions!";
 
             var smtp = new SmtpClient
             {
-                Host = _configuration["host"],
+                Host = _configuration[emailConfig + "host"],
                 Port = int.Parse(_configuration[emailConfig + "port"]),
                 EnableSsl = true,
                 DeliveryMethod = SmtpDeliveryMethod.Network,
@@ -56,8 +56,14 @@ namespace InstagramClone.EmailSender.Helpers
 
         private static string GetEmaiBody(EmailModel emailModel)
         {
-            return $"{emailModel.FirstName} {emailModel.LastName} - {emailModel.UserName} has published a new post! </br>" +
-                $"Click here to view the details: {emailModel.ShareLink}";
+            return @$"
+            <html>
+            	<body>
+            		<h2>Hi {emailModel.FirstName} {emailModel.LastName}!</h2>
+            		<p>{emailModel.Post.UserProfile.FirstName} {emailModel.Post.UserProfile.LastName} - {emailModel.Post.UserProfile.UserName} has published a new post!</p>
+            		<p>Click here to view the details: {emailModel.ShareLink}</p>
+            	</body>
+            </html>";
         }
     }
 }

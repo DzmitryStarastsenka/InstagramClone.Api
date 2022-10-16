@@ -11,6 +11,8 @@ namespace InstagramClone.Infrastructure.DAL.Context
         public DbSet<PostLike> Likes { get; set; }
         public DbSet<PostComment> Comments { get; set; }
 
+        public virtual DbSet<Subscription> Subscriptions { get; set; }
+
         public InstagramCloneDbContext(DbContextOptions<InstagramCloneDbContext> options)
             : base(options)
         {
@@ -64,6 +66,21 @@ namespace InstagramClone.Infrastructure.DAL.Context
             modelBuilder.Entity<PostLike>(entity =>
             {
                 entity.HasKey(e => new { e.UserProfileId, e.PostId });
+            });
+
+            modelBuilder.Entity<Subscription>(entity =>
+            {
+                entity.HasKey(e => new { e.SubscriberId, e.PublisherId });
+
+                entity.HasOne(d => d.Subscriber)
+                    .WithMany(p => p.Subscriptions)
+                    .HasForeignKey(d => d.SubscriberId)
+                    .OnDelete(DeleteBehavior.ClientCascade);
+
+                entity.HasOne(d => d.Publisher)
+                    .WithMany(p => p.Signatories)
+                    .HasForeignKey(d => d.PublisherId)
+                    .OnDelete(DeleteBehavior.ClientCascade);
             });
         }
     }

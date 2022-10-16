@@ -29,7 +29,7 @@ namespace InstagramClone.Application.Queries.User
 
         public async Task<byte[]> Handle(GetPostPhotoQuery command, CancellationToken cancellationToken)
         {
-            return await _userPostRepository.Query.AsNoTracking()
+            return await _userPostRepository.Query
                 .Where(p => p.Id == command.PostId)
                 .Select(p => p.Photo)
                 .SingleOrDefaultAsync(cancellationToken);

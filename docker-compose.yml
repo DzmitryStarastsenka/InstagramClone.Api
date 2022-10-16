@@ -13,6 +13,8 @@ services:
 
   instagramclone.api:
     image: ${DOCKER_REGISTRY-}instagramcloneapi
+    ports:
+      - "5001:80"
     build:
       context: .
       dockerfile: InstagramClone.Api/Dockerfile

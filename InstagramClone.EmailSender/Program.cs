@@ -5,6 +5,7 @@ using InstagramClone.Application.Sieve;
 using InstagramClone.Domain.DAL;
 using InstagramClone.Domain.DAL.Models.Post;
 using InstagramClone.Domain.DAL.Models.User;
+using InstagramClone.EmailSender.Helpers;
 using InstagramClone.EmailSender.Services;
 using InstagramClone.Infrastructure.DAL;
 using InstagramClone.Infrastructure.DAL.Context;
@@ -34,6 +35,8 @@ builder.Services.AddMediatR(Assembly.GetExecutingAssembly());
 
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
+builder.Services.AddScoped<EmailSenderHelper>();
+
 builder.Services.AddScoped<ISieveCustomFilterMethods, SieveCustomFilters>();
 builder.Services.AddScoped<ISieveProcessor, ApplicationSieveProcessor>();
 
@@ -42,6 +45,7 @@ builder.Services.AddScoped<IRepository<UserProfile>, EntityRepository<UserProfil
 builder.Services.AddScoped<IRepository<UserPost>, EntityRepository<UserPost>>();
 builder.Services.AddScoped<IRepository<PostComment>, EntityRepository<PostComment>>();
 builder.Services.AddScoped<IRepository<PostLike>, EntityRepository<PostLike>>();
+builder.Services.AddScoped<IRepository<Subscription>, EntityRepository<Subscription>>();
 
 builder.Services.AddTransient<RabbitMQHelper>();
 builder.Services.AddHostedService<ConsumeEmailSenderMessagingService>();

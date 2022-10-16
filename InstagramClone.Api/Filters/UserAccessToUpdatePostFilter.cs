@@ -41,7 +41,7 @@ namespace InstagramClone.Api.Filters
 
             if (context.ActionArguments.TryGetValue("id", out var postId))
             {
-                var createdUserProfileId = await _userPostRepository.Query.AsNoTracking()
+                var createdUserProfileId = await _userPostRepository.Query
                     .Where(p => p.Id == Convert.ToInt32(postId))
                     .Select(p => p.CreatedUserProfileId)
                     .FirstOrDefaultAsync(CancellationToken.None);

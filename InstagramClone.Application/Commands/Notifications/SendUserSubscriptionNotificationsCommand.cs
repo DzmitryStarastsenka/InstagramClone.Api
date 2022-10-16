@@ -1,4 +1,5 @@
-﻿using InstagramClone.Application.Services.RabbitMQ;
+﻿using InstagramClone.Application.Models;
+using InstagramClone.Application.Services.RabbitMQ;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -10,12 +11,12 @@ namespace InstagramClone.Application.Commands.Notifications
 {
     public class SendUserSubscriptionNotificationsCommand : IRequest<Unit>
     {
-        public SendUserSubscriptionNotificationsCommand(int userId)
+        public SendUserSubscriptionNotificationsCommand(SubscribeNotification subscribeNotification)
         {
-            UserId = userId;
+            SubscribeNotification = subscribeNotification;
         }
 
-        public int UserId { get; }
+        public SubscribeNotification SubscribeNotification { get; }
     }
 
     public class SendUserSubscriptionNotificationsCommandHandler : IRequestHandler<SendUserSubscriptionNotificationsCommand, Unit>
@@ -35,7 +36,7 @@ namespace InstagramClone.Application.Commands.Notifications
         {
             _logger.LogInformation("Send notifications through RabbitMQ");
 
-            _rabbitMQEmailSenderService.Send(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(command.UserId)));
+            _rabbitMQEmailSenderService.Send(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(command.SubscribeNotification)));
 
             return Task.FromResult(Unit.Value);
         }

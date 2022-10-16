@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using InstagramClone.Application.Helpers;
 using InstagramClone.Application.Models;
 using InstagramClone.Domain.Models;
+using InstagramClone.EmailSender.Commands;
 using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -126,19 +127,10 @@ namespace InstagramClone.EmailSender.Services
                                 var patentsHandleMessageHandleMessageService = scope.ServiceProvider.GetRequiredService<IMediator>();
                                 var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
 
-                                var receivedModel = JsonConvert.DeserializeObject<SubscribeNotification>(message);
-                                
-                                // TODO
-                                var result = true;
+                                var subscribeNotificationEventModel = JsonConvert.DeserializeObject<SubscribeNotification>(message);
 
-                                if (!result)
-                                {
-                                    _channel.BasicNack(eventArgs.DeliveryTag, false, false);
-                                }
-                                else
-                                {
-                                    _channel.BasicAck(eventArgs.DeliveryTag, false);
-                                }
+                                await mediator.Send(new ProcessUserSubscriptionNotificationsCommand(subscribeNotificationEventModel));
+                                _channel.BasicAck(eventArgs.DeliveryTag, false);
                             }
                             break;
                     }
@@ -146,6 +138,7 @@ namespace InstagramClone.EmailSender.Services
                 catch (Exception e)
                 {
                     _logger.LogError($"Error handling message{Environment.NewLine}{e}");
+                    _channel.BasicNack(eventArgs.DeliveryTag, false, false);
                 }
             }
 

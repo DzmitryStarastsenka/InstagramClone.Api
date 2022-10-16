@@ -1,4 +1,5 @@
-﻿using InstagramClone.Application.Models.User;
+﻿using InstagramClone.Application.Commands.User;
+using InstagramClone.Application.Models.User;
 using InstagramClone.Application.Queries.User;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -33,6 +34,13 @@ namespace InstagramClone.Api.Controllers
         public async Task<ActionResult<UserProfileDto>> GetById([FromRoute] int id, CancellationToken token)
         {
             return await _mediator.Send(new GetUserInfoQuery(id), token);
+        }
+
+        [HttpPost("subscribe/{id}")]
+        public async Task<NoContentResult> SubscribeToUser([FromRoute] int id, CancellationToken token)
+        {
+            await _mediator.Send(new SubscribeToUserCommand(id), token);
+            return NoContent();
         }
 
         //[Authorize(Policy = "Admin")]

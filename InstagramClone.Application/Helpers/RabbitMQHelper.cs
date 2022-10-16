@@ -25,7 +25,7 @@ namespace InstagramClone.Application.Helpers
                 Password = _configuration[rabbitMQConfig + "password"],
                 RequestedHeartbeat = new TimeSpan(60),
                 AutomaticRecoveryEnabled = true,
-                DispatchConsumersAsync = true,
+                DispatchConsumersAsync = true
             };
         }
     }

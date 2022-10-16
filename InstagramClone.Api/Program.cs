@@ -125,6 +125,7 @@ builder.Services.AddScoped<IRepository<UserProfile>, EntityRepository<UserProfil
 builder.Services.AddScoped<IRepository<UserPost>, EntityRepository<UserPost>>();
 builder.Services.AddScoped<IRepository<PostComment>, EntityRepository<PostComment>>();
 builder.Services.AddScoped<IRepository<PostLike>, EntityRepository<PostLike>>();
+builder.Services.AddScoped<IRepository<Subscription>, EntityRepository<Subscription>>();
 
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 builder.Services.AddTransient<IAuthenticatedCurrentUserInfoProvider, AuthenticatedCurrentUserInfoProvider>();

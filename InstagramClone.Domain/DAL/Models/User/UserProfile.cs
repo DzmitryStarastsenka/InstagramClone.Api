@@ -18,5 +18,8 @@ namespace InstagramClone.Domain.DAL.Models.User
         public List<UserPost> Posts { get; } = new List<UserPost>();
         public List<PostComment> Comments { get; } = new List<PostComment>();
         public List<PostLike> Likes { get; } = new List<PostLike>();
+
+        public List<Subscription> Subscriptions { get; } = new List<Subscription>();
+        public List<Subscription> Signatories { get; } = new List<Subscription>();
     }
 }
