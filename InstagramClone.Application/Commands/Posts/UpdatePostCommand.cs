@@ -12,13 +12,11 @@ namespace InstagramClone.Application.Queries.User
 {
     public class UpdatePostCommand : IRequest<Unit>
     {
-        public UpdatePostCommand(int postId, UpdatePostRequest request)
+        public UpdatePostCommand(UpdatePostRequest request)
         {
-            PostId = postId;
             Request = request;
         }
 
-        public int PostId { get; }
         public UpdatePostRequest Request { get; }
     }
 
@@ -37,7 +35,7 @@ namespace InstagramClone.Application.Queries.User
         {
             var request = command.Request;
 
-            var post = await _userPostRepository.GetByIdAsync(command.PostId, cancellationToken);
+            var post = await _userPostRepository.GetByIdAsync(request.PostId, cancellationToken);
 
             _mapper.Map(request, post);
             post.PostEditedAt = DateTime.UtcNow;

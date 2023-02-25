@@ -19,7 +19,7 @@ namespace InstagramClone.Application.Validations.Users
         {
             _userPostRepository = userPostRepository;
 
-            RuleFor(x => x.PostId).MustAsync(IsPostExists).WithValidationErrorCode(ValidationErrorCode.NotFound)
+            RuleFor(x => x.Request.PostId).MustAsync(IsPostExists).WithValidationErrorCode(ValidationErrorCode.NotFound)
                 .WithMessage(PostValidationErrorMessages.PostNotFound);
             RuleFor(x => x.Request.Description).NotEmpty().WithValidationErrorCode(ValidationErrorCode.Required)
                 .WithMessage(PostValidationErrorMessages.EmptyDescription);

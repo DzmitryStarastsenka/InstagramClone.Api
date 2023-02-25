@@ -19,6 +19,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InstagramClone.EmailSender"
 		{564C0BE3-C4DE-44DA-B901-ADCDAB4BA837} = {564C0BE3-C4DE-44DA-B901-ADCDAB4BA837}
 	EndProjectSection
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InstagramClone.UnitTests", "InstagramClone.UnitTests\InstagramClone.UnitTests.csproj", "{0094448C-02D0-4CE2-81FD-8EDD59F4C72D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -49,6 +51,10 @@ Global
 		{E4F90F04-F343-426C-9BF0-46170D40E50F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E4F90F04-F343-426C-9BF0-46170D40E50F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E4F90F04-F343-426C-9BF0-46170D40E50F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0094448C-02D0-4CE2-81FD-8EDD59F4C72D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0094448C-02D0-4CE2-81FD-8EDD59F4C72D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0094448C-02D0-4CE2-81FD-8EDD59F4C72D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0094448C-02D0-4CE2-81FD-8EDD59F4C72D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

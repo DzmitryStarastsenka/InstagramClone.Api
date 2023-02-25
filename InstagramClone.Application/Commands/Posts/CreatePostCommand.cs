@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using InstagramClone.Application.Models.Post;
+using InstagramClone.Application.Commands.Notifications;
 using InstagramClone.Application.Models.Post.Requests;
 using InstagramClone.Application.Models.Post.Responses;
 using InstagramClone.Application.Services.User.Extensions;
@@ -29,15 +29,17 @@ namespace InstagramClone.Application.Queries.User
         private readonly IAuthenticatedCurrentUserInfoProvider _authenticatedCurrentUserInfoProvider;
         private readonly IRepository<UserProfile> _userProfileRepository;
         private readonly IMapper _mapper;
+        private readonly IMediator _mediator;
 
         public CreatePostCommandHandler(IRepository<UserPost> userPostRepository,
             IAuthenticatedCurrentUserInfoProvider authenticatedCurrentUserInfoProvider,
-            IRepository<UserProfile> userProfileRepository, IMapper mapper)
+            IRepository<UserProfile> userProfileRepository, IMapper mapper, IMediator mediator)
         {
             _userPostRepository = userPostRepository;
             _authenticatedCurrentUserInfoProvider = authenticatedCurrentUserInfoProvider;
             _userProfileRepository = userProfileRepository;
             _mapper = mapper;
+            _mediator = mediator;
         }
 
         public async Task<PostCreationResponse> Handle(CreatePostCommand command, CancellationToken cancellationToken)
@@ -52,6 +54,12 @@ namespace InstagramClone.Application.Queries.User
 
             await _userPostRepository.InsertAsync(userPost, cancellationToken);
             await _userPostRepository.SaveChangesAsync(cancellationToken);
+
+            await _mediator.Send(new SendUserSubscriptionNotificationsCommand(new()
+            {
+                CreatedUserProfileId = currentUserId,
+                PostId = userPost.Id
+            }), cancellationToken);
 
             return new PostCreationResponse
             {

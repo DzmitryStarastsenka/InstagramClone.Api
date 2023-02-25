@@ -32,9 +32,9 @@ namespace InstagramClone.Application.Validations.Users
             _authenticatedCurrentUserInfoProvider = authenticatedCurrentUserInfoProvider;
             _userProfileRepository = userProfileRepository;
 
-            RuleFor(x => x.PostId).MustAsync(IsPostExists).WithValidationErrorCode(ValidationErrorCode.NotFound)
+            RuleFor(x => x.Request.PostId).MustAsync(IsPostExists).WithValidationErrorCode(ValidationErrorCode.NotFound)
                 .WithMessage(PostValidationErrorMessages.PostNotFound);
-            RuleFor(x => x.PostId).MustAsync(IsPostLiked).WithValidationErrorCode(ValidationErrorCode.Invalid)
+            RuleFor(x => x.Request.PostId).MustAsync(IsPostLiked).WithValidationErrorCode(ValidationErrorCode.Invalid)
                 .WithMessage(PostValidationErrorMessages.NotLiked);
         }
 

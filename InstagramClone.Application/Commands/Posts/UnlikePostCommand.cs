@@ -1,4 +1,5 @@
-﻿using InstagramClone.Application.Services.User.Extensions;
+﻿using InstagramClone.Application.Models.Post.Requests;
+using InstagramClone.Application.Services.User.Extensions;
 using InstagramClone.Domain.DAL;
 using InstagramClone.Domain.DAL.Models.Post;
 using InstagramClone.Domain.DAL.Models.User;
@@ -13,12 +14,12 @@ namespace InstagramClone.Application.Queries.User
 {
     public class UnlikePostCommand : IRequest<Unit>
     {
-        public UnlikePostCommand(int postId)
+        public UnlikePostCommand(UnlikePostRequest request)
         {
-            PostId = postId;
+            Request = request;
         }
 
-        public int PostId { get; }
+        public UnlikePostRequest Request { get; }
     }
 
     public class UnlikePostCommandHandler : IRequestHandler<UnlikePostCommand, Unit>
@@ -38,7 +39,7 @@ namespace InstagramClone.Application.Queries.User
 
         public async Task<Unit> Handle(UnlikePostCommand command, CancellationToken cancellationToken)
         {
-            var postId = command.PostId;
+            var postId = command.Request.PostId;
 
             var currentUserName = _authenticatedCurrentUserInfoProvider.Get().UserName;
             var currentUserId = await _userProfileRepository.GetUserIdByUserName(currentUserName, cancellationToken);

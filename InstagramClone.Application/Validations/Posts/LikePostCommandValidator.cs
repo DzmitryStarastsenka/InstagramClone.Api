@@ -1,17 +1,17 @@
 ﻿using FluentValidation;
-using InstagramClone.Application.Queries.User;
 using InstagramClone.Application.Extensions;
-using InstagramClone.Domain.Exceptions;
+using InstagramClone.Application.Queries.User;
+using InstagramClone.Application.Services.Post.Extensions;
+using InstagramClone.Application.Services.User.Extensions;
 using InstagramClone.Application.Validations.Posts.ErrorMessages;
 using InstagramClone.Domain.DAL;
 using InstagramClone.Domain.DAL.Models.Post;
-using System.Threading.Tasks;
-using System.Threading;
-using InstagramClone.Application.Services.Post.Extensions;
 using InstagramClone.Domain.DAL.Models.User;
+using InstagramClone.Domain.Exceptions;
 using InstagramClone.Domain.UserProviders;
-using InstagramClone.Application.Services.User.Extensions;
 using Microsoft.EntityFrameworkCore;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace InstagramClone.Application.Validations.Users
 {
@@ -32,9 +32,9 @@ namespace InstagramClone.Application.Validations.Users
             _authenticatedCurrentUserInfoProvider = authenticatedCurrentUserInfoProvider;
             _userProfileRepository = userProfileRepository;
 
-            RuleFor(x => x.PostId).MustAsync(IsPostExists).WithValidationErrorCode(ValidationErrorCode.NotFound)
+            RuleFor(x => x.Request.PostId).MustAsync(IsPostExists).WithValidationErrorCode(ValidationErrorCode.NotFound)
                 .WithMessage(PostValidationErrorMessages.PostNotFound);
-            RuleFor(x => x.PostId).MustAsync(IsPostNotLiked).WithValidationErrorCode(ValidationErrorCode.Invalid)
+            RuleFor(x => x.Request.PostId).MustAsync(IsPostNotLiked).WithValidationErrorCode(ValidationErrorCode.Invalid)
                 .WithMessage(PostValidationErrorMessages.AlreadyLiked);
         }
 

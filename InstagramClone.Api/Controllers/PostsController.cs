@@ -44,7 +44,8 @@ namespace InstagramClone.Api.Controllers
         [ServiceFilter(typeof(UserAccessToUpdatePostFilter))]
         public async Task<IActionResult> UpdatePost([FromRoute] int id, [FromBody] UpdatePostRequest request, CancellationToken token)
         {
-            await _mediator.Send(new UpdatePostCommand(id, request), token);
+            request.PostId = id;
+            await _mediator.Send(new UpdatePostCommand(request), token);
             return NoContent();
         }
 
@@ -67,14 +68,14 @@ namespace InstagramClone.Api.Controllers
         [HttpPut("{id}/like")]
         public async Task<IActionResult> LikePost([FromRoute] int id, CancellationToken token)
         {
-            await _mediator.Send(new LikePostCommand(id), token);
+            await _mediator.Send(new LikePostCommand(new() { PostId = id }), token);
             return Ok();
         }
 
         [HttpPut("{id}/unlike")]
         public async Task<IActionResult> UnlikePost([FromRoute] int id, CancellationToken token)
         {
-            await _mediator.Send(new UnlikePostCommand(id), token);
+            await _mediator.Send(new UnlikePostCommand(new() { PostId = id }), token);
             return Ok();
         }
     }

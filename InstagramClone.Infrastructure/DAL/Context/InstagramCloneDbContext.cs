@@ -6,10 +6,10 @@ namespace InstagramClone.Infrastructure.DAL.Context
 {
     public class InstagramCloneDbContext : DbContext
     {
-        public DbSet<UserProfile> UserProfiles { get; set; }
-        public DbSet<UserPost> Posts { get; set; }
-        public DbSet<PostLike> Likes { get; set; }
-        public DbSet<PostComment> Comments { get; set; }
+        public virtual DbSet<UserProfile> UserProfiles { get; set; }
+        public virtual DbSet<UserPost> Posts { get; set; }
+        public virtual DbSet<PostLike> Likes { get; set; }
+        public virtual DbSet<PostComment> Comments { get; set; }
 
         public virtual DbSet<Subscription> Subscriptions { get; set; }
 
